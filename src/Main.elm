@@ -28,12 +28,12 @@ main =
         }
 
 
-
--- MODEL
-
-
 type Model
     = NoteModel Page.Note.Model
+
+
+
+-- MODEL
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )

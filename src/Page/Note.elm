@@ -2,7 +2,6 @@ module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 
 import Css exposing (..)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes as A
 import Html.Styled.Events as A
 
 
@@ -44,16 +43,16 @@ type Message
 update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
-        EditNote newText ->
-            ( { model | text = newText }, Cmd.none )
-
-        SaveNote ->
-            ( model, Cmd.none )
-
         DeleteNote ->
             ( model, Cmd.none )
 
+        EditNote newText ->
+            ( { model | text = newText }, Cmd.none )
+
         NoOp ->
+            ( model, Cmd.none )
+
+        SaveNote ->
             ( model, Cmd.none )
 
 

@@ -11,8 +11,7 @@ type Route
 parser : P.Parser (Route -> a) a
 parser =
     P.oneOf
-        [ P.map Note <|
-            P.top
+        [ P.map Note P.top
         ]
 
 

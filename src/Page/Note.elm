@@ -1,5 +1,7 @@
 module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 
+import Array exposing (Array)
+import Browser
 import Css exposing (..)
 import Html.Styled exposing (..)
 import Html.Styled.Events as A
@@ -11,6 +13,7 @@ import Html.Styled.Events as A
 
 type alias Model =
     { text : String
+    , id : Int
     }
 
 
@@ -20,7 +23,7 @@ type alias Model =
 
 init : ( Model, Cmd Message )
 init =
-    ( { text = "Dashboard" }
+    ( { text = "First Note", id = 1 }
     , Cmd.none
     )
 
@@ -71,12 +74,9 @@ subscriptions model =
 
 view : Model -> Html Message
 view model =
-    styled div
-        [ fontSize (px 44)
-        , fontWeight (int 600)
-        ]
+    div
         [ A.onClick
-            (EditNote "My notes")
+            (EditNote "Note was edited")
         ]
         [ text model.text ]
 

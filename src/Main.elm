@@ -18,7 +18,7 @@ main =
         { init = init
         , view =
             \model ->
-                { title = "ElmNote"
+                { title = "Dashboard"
                 , body = [ toUnstyled <| view model ]
                 }
         , update = update
@@ -41,7 +41,7 @@ init flags url key =
     case Route.fromUrl url |> Maybe.withDefault Route.Note of
         Route.Note ->
             Page.Note.init
-                |> wrap ToNote NoteModel
+                |> translate ToNote NoteModel
 
 
 type Msg
@@ -61,7 +61,7 @@ update msg model =
     case ( msg, model ) of
         ( ToNote childMessage, NoteModel childModel ) ->
             Page.Note.update childMessage childModel
-                |> wrap ToNote NoteModel
+                |> translate ToNote NoteModel
 
         _ ->
             ( model, Cmd.none )
@@ -91,9 +91,10 @@ view model =
 
 
 
--- UTIL
+--used reference from elm-spa
+--Translator Pattern between Messages in Note and Main
 
 
-wrap : (childMessage -> Msg) -> (childModel -> Model) -> ( childModel, Cmd childMessage ) -> ( Model, Cmd Msg )
-wrap toMessage toModel ( childModel, childCmd ) =
+translate : (childMessage -> Msg) -> (childModel -> Model) -> ( childModel, Cmd childMessage ) -> ( Model, Cmd Msg )
+translate toMessage toModel ( childModel, childCmd ) =
     ( toModel childModel, Cmd.map toMessage childCmd )

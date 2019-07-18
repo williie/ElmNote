@@ -3,8 +3,9 @@ module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 import Array exposing (Array)
 import Browser
 import Css exposing (..)
-import Html.Styled exposing (..)
-import Html.Styled.Events as A
+import Html exposing (Html, button, div, text)
+import Html.Attributes exposing (class)
+import Html.Events as A exposing (onClick)
 
 
 
@@ -12,7 +13,8 @@ import Html.Styled.Events as A
 
 
 type alias Model =
-    { text : String
+    { title : String
+    , content : String
     , id : Int
     }
 
@@ -23,7 +25,7 @@ type alias Model =
 
 init : ( Model, Cmd Message )
 init =
-    ( { text = "First Note", id = 1 }
+    ( { title = "My first Note", content = "This is my first Note", id = 1 }
     , Cmd.none
     )
 
@@ -33,7 +35,8 @@ init =
 
 
 type Message
-    = EditNote String
+    = AddNote
+    | EditNote String
     | SaveNote
     | DeleteNote
     | NoOp
@@ -46,11 +49,14 @@ type Message
 update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
+        AddNote ->
+            ( model, Cmd.none )
+
         DeleteNote ->
             ( model, Cmd.none )
 
         EditNote newText ->
-            ( { model | text = newText }, Cmd.none )
+            ( { model | content = newText }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -74,11 +80,15 @@ subscriptions model =
 
 view : Model -> Html Message
 view model =
-    div
-        [ A.onClick
-            (EditNote "Note was edited")
+    div []
+        [ button [ class "btn btn-primary", onClick AddNote ] [ text "Add new note" ]
+        , button [ class "btn btn-danger", onClick SaveNote ] [ text "Save note" ]
+        , div
+            [ A.onClick
+                (EditNote "Note was edited")
+            ]
+            [ text model.content ]
         ]
-        [ text model.text ]
 
 
 noteListStyle : List Style

@@ -1,8 +1,10 @@
 module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 
-import Browser
+--import Html.Styled exposing (..)
+
+import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Html.Styled exposing (..)
+import Html exposing (Html, map)
 import Page.Note
 import Route
 import Url
@@ -19,7 +21,7 @@ main =
         , view =
             \model ->
                 { title = "Dashboard"
-                , body = [ toUnstyled <| view model ]
+                , body = [ view model ]
                 }
         , update = update
         , subscriptions = subscriptions
@@ -46,9 +48,6 @@ init flags url key =
 
 type Msg
     = ToNote Page.Note.Message
-    | SaveNote Page.Note.Message
-    | EditNote Page.Note.Message
-    | DeleteNote Page.Note.Message
     | NoOp
 
 
@@ -86,7 +85,8 @@ view : Model -> Html Msg
 view model =
     case model of
         NoteModel childModel ->
-            Page.Note.view childModel
+            Page.Note.view
+                childModel
                 |> map ToNote
 
 

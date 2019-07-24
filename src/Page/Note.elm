@@ -112,10 +112,3 @@ renderList model =
     model.notes
         |> List.map (\l -> li [] [ text l.content ])
         |> ul []
-
-
-noteListStyle : List Style
-noteListStyle =
-    [ fontSize (px 44)
-    , fontWeight (int 600)
-    ]

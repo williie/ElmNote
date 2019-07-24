@@ -1,11 +1,16 @@
 module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 
-import Array exposing (Array)
-import Browser
 import Css exposing (..)
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, li, text, ul)
 import Html.Attributes exposing (class)
 import Html.Events as A exposing (onClick)
+
+
+type alias Note =
+    { title : String
+    , content : String
+    , noteId : Int
+    }
 
 
 
@@ -13,9 +18,8 @@ import Html.Events as A exposing (onClick)
 
 
 type alias Model =
-    { title : String
-    , content : String
-    , id : Int
+    { notes : List Note
+    , selectedNote : Maybe Int
     }
 
 
@@ -25,7 +29,13 @@ type alias Model =
 
 init : ( Model, Cmd Message )
 init =
-    ( { title = "My first Note", content = "This is my first Note", id = 1 }
+    ( { notes =
+            [ { title = "My first Note", content = "This is my first note", noteId = 1 }
+            , { title = "My second Note", content = "This is my second note", noteId = 2 }
+            , { title = "My third Note", content = "This is my third note", noteId = 3 }
+            ]
+      , selectedNote = Nothing
+      }
     , Cmd.none
     )
 
@@ -37,9 +47,10 @@ init =
 type Message
     = AddNote
     | EditNote String
-    | SaveNote
-    | DeleteNote
+    | DeleteNote Int
     | NoOp
+    | SaveNote
+    | SelectNote Int
 
 
 
@@ -50,19 +61,22 @@ update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
         AddNote ->
-            ( model, Cmd.none )
+            ( { model | notes = [ { title = "My n-th Note", content = "This is my n-th note", noteId = 4 } ] ++ model.notes, selectedNote = Just 1 }, Cmd.none )
 
-        DeleteNote ->
+        DeleteNote id ->
             ( model, Cmd.none )
 
         EditNote newText ->
-            ( { model | content = newText }, Cmd.none )
+            ( { model | notes = List.map (\note -> { note | content = newText }) model.notes }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
 
         SaveNote ->
             ( model, Cmd.none )
+
+        SelectNote id ->
+            ( { model | selectedNote = Just id }, Cmd.none )
 
 
 
@@ -83,12 +97,21 @@ view model =
     div []
         [ button [ class "btn btn-primary", onClick AddNote ] [ text "Add new note" ]
         , button [ class "btn btn-danger", onClick SaveNote ] [ text "Save note" ]
-        , div
-            [ A.onClick
-                (EditNote "Note was edited")
-            ]
-            [ text model.content ]
+        , div [ class "note-container" ] [ renderList model ]
+
+        --        , div
+        --            [ A.onClick
+        --                (EditNote "Note was edited")
+        --            ]
+        --            [ text "My Notes" ]
         ]
+
+
+renderList : Model -> Html Message
+renderList model =
+    model.notes
+        |> List.map (\l -> li [] [ text l.content ])
+        |> ul []
 
 
 noteListStyle : List Style

@@ -1,9 +1,10 @@
 module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 
 import Css exposing (..)
-import Html exposing (Html, button, div, li, text, ul)
+import Html exposing (Html, button, div, li, ol, text, ul)
 import Html.Attributes exposing (class)
 import Html.Events as A exposing (onClick)
+import List.Extra as List
 
 
 type alias Note =
@@ -19,7 +20,7 @@ type alias Note =
 
 type alias Model =
     { notes : List Note
-    , selectedNote : Maybe Int
+    , selectedNote : Int
     }
 
 
@@ -29,12 +30,8 @@ type alias Model =
 
 init : ( Model, Cmd Message )
 init =
-    ( { notes =
-            [ { title = "My first Note", content = "This is my first note", noteId = 1 }
-            , { title = "My second Note", content = "This is my second note", noteId = 2 }
-            , { title = "My third Note", content = "This is my third note", noteId = 3 }
-            ]
-      , selectedNote = Nothing
+    ( { notes = []
+      , selectedNote = 0
       }
     , Cmd.none
     )
@@ -46,8 +43,8 @@ init =
 
 type Message
     = AddNote
-    | EditNote String
-    | DeleteNote Int
+    | EditNote String Int
+    | DeleteNote
     | NoOp
     | SaveNote
     | SelectNote Int
@@ -61,14 +58,20 @@ update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
         AddNote ->
-            ( { model | notes = [ { title = "My n-th Note", content = "This is my n-th note", noteId = 4 } ] ++ model.notes, selectedNote = Just 1 }, Cmd.none )
+            let
+                newNoteId =
+                    List.length model.notes
+            in
+            ( { model | selectedNote = newNoteId, notes = [ { title = "My Note " ++ String.fromInt newNoteId, content = "This is my new note", noteId = newNoteId } ] ++ model.notes }, Cmd.none )
 
-        DeleteNote id ->
+        DeleteNote ->
             ( model, Cmd.none )
 
-        EditNote newText ->
-            ( { model | notes = List.map (\note -> { note | content = newText }) model.notes }, Cmd.none )
+        EditNote text id ->
+            --List.map Apply a function to every element of a list.
+            ( { model | selectedNote = id, notes = List.indexedMap (\index note -> { note | noteId = index, title = text }) model.notes }, Cmd.none )
 
+        -- ( { model | notes = List.map (\note -> { note | noteId = id }) model.selectedNote = id }, Cmd.none )
         NoOp ->
             ( model, Cmd.none )
 
@@ -76,7 +79,7 @@ update message model =
             ( model, Cmd.none )
 
         SelectNote id ->
-            ( { model | selectedNote = Just id }, Cmd.none )
+            ( { model | selectedNote = id }, Cmd.none )
 
 
 
@@ -96,19 +99,23 @@ view : Model -> Html Message
 view model =
     div []
         [ button [ class "btn btn-primary", onClick AddNote ] [ text "Add new note" ]
-        , button [ class "btn btn-danger", onClick SaveNote ] [ text "Save note" ]
+        , button [ class "btn btn-danger", onClick DeleteNote ] [ text "Delete note" ]
         , div [ class "note-container" ] [ renderList model ]
-
-        --        , div
-        --            [ A.onClick
-        --                (EditNote "Note was edited")
-        --            ]
-        --            [ text "My Notes" ]
+        , div
+            [ onClick
+                (EditNote "Hello" model.selectedNote)
+            ]
+            [ text "Note was edited" ]
         ]
 
 
 renderList : Model -> Html Message
 renderList model =
     model.notes
-        |> List.map (\l -> li [] [ text l.content ])
-        |> ul []
+        |> List.map (\l -> li [] [ text l.title ])
+        |> ol []
+
+
+
+--|> List.indexedMap (\index selectedNote -> li [] [ text selectedNote.title ])
+--|> ul []

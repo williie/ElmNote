@@ -1,9 +1,9 @@
 module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 
 import Css exposing (..)
-import Html exposing (Html, button, div, li, ol, text, ul)
-import Html.Attributes exposing (class)
-import Html.Events as A exposing (onClick)
+import Html exposing (Html, button, div, input, label, li, ol, text)
+import Html.Attributes exposing (class, value)
+import Html.Events as A exposing (onClick, onInput)
 import List.Extra as List
 
 
@@ -69,7 +69,7 @@ update message model =
 
         EditNote text id ->
             --List.map Apply a function to every element of a list.
-            ( { model | selectedNote = id, notes = List.indexedMap (\index note -> { note | noteId = index, title = text }) model.notes }, Cmd.none )
+            ( { model | selectedNote = id, notes = List.map (\note -> { note | title = text }) model.notes }, Cmd.none )
 
         -- ( { model | notes = List.map (\note -> { note | noteId = id }) model.selectedNote = id }, Cmd.none )
         NoOp ->
@@ -98,22 +98,56 @@ subscriptions model =
 view : Model -> Html Message
 view model =
     div []
-        [ button [ class "btn btn-primary", onClick AddNote ] [ text "Add new note" ]
+        [ button [ class "btn btn-primary", onClick AddNote ]
+            [ text "Add new note" ]
         , button [ class "btn btn-danger", onClick DeleteNote ] [ text "Delete note" ]
+        , div [] [ text "My Note App" ]
         , div [ class "note-container" ] [ renderList model ]
-        , div
-            [ onClick
-                (EditNote "Hello" model.selectedNote)
-            ]
-            [ text "Note was edited" ]
+        , div [ class "form-group" ] [ renderForm model ]
+
+        -- , div
+        --   [ onClick
+        --     (EditNote "Hello" model.selectedNote)
+        --]
+        --[ text "Note was edited" ]
         ]
 
 
 renderList : Model -> Html Message
 renderList model =
     model.notes
-        |> List.map (\l -> li [] [ text l.title ])
+        |> List.map
+            (\l ->
+                div []
+                    [ li
+                        []
+                        [ text "#Title: "
+                        , text l.title
+                        ]
+                    , div []
+                        [ text l.content
+                        ]
+                    ]
+            )
         |> ol []
+
+
+renderForm : Model -> Html Message
+renderForm model =
+    div []
+        [ label
+            []
+            [ text "Title " ]
+        , input
+            [ onInput (\x -> EditNote x 1) ]
+            []
+        , label
+            []
+            [ text " Content" ]
+        , input
+            [ onInput (\x -> EditNote x 1) ]
+            []
+        ]
 
 
 

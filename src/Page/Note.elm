@@ -20,7 +20,7 @@ type alias Note =
 
 type alias Model =
     { notes : List Note
-    , selectedNote : Int
+    , selectedNote : Maybe Int
     }
 
 
@@ -31,7 +31,7 @@ type alias Model =
 init : ( Model, Cmd Message )
 init =
     ( { notes = []
-      , selectedNote = 0
+      , selectedNote = Nothing
       }
     , Cmd.none
     )
@@ -46,7 +46,7 @@ type Message
     | EditNote String Int
     | DeleteNote
     | NoOp
-    | SaveNote
+    | SaveNote String String
     | SelectNote Int
 
 
@@ -62,24 +62,28 @@ update message model =
                 newNoteId =
                     List.length model.notes
             in
-            ( { model | selectedNote = newNoteId, notes = [ { title = "My Note " ++ String.fromInt newNoteId, content = "This is my new note", noteId = newNoteId } ] ++ model.notes }, Cmd.none )
+            ( { model | selectedNote = Nothing, notes = [ { title = "My Note " ++ String.fromInt newNoteId, content = "This is my new note", noteId = newNoteId } ] ++ model.notes }, Cmd.none )
 
         DeleteNote ->
             ( model, Cmd.none )
 
         EditNote text id ->
             --List.map Apply a function to every element of a list.
-            ( { model | selectedNote = id, notes = List.map (\note -> { note | title = text }) model.notes }, Cmd.none )
+            ( { model | selectedNote = Just id, notes = List.map (\note -> { note | content = text }) model.notes }, Cmd.none )
 
         -- ( { model | notes = List.map (\note -> { note | noteId = id }) model.selectedNote = id }, Cmd.none )
         NoOp ->
             ( model, Cmd.none )
 
-        SaveNote ->
-            ( model, Cmd.none )
+        SaveNote newTitle newContent ->
+            let
+                newNoteId =
+                    List.length model.notes
+            in
+            ( { model | selectedNote = Nothing, notes = [ { title = newTitle ++ String.fromInt newNoteId, content = newContent, noteId = newNoteId } ] ++ model.notes }, Cmd.none )
 
         SelectNote id ->
-            ( { model | selectedNote = id }, Cmd.none )
+            ( { model | selectedNote = Just id }, Cmd.none )
 
 
 
@@ -139,14 +143,17 @@ renderForm model =
             []
             [ text "Title " ]
         , input
-            [ onInput (\x -> EditNote x 1) ]
+            [ onInput (\x -> EditNote x 0)
+            ]
             []
         , label
             []
             [ text " Content" ]
         , input
-            [ onInput (\x -> EditNote x 1) ]
+            [ onInput (\x -> EditNote x 0) ]
             []
+
+        --, button [ onClick (SaveNote "" "") ] [ text "Save Note" ]
         ]
 
 

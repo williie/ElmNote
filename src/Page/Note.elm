@@ -44,10 +44,9 @@ init =
 type Message
     = AddNote
     | Cancel
-    | DeleteNote Note
+    | DeleteNote Int
     | EditTitle String
     | EditContent String
-    | NoOp
     | SaveNote
     | SelectNote Note
 
@@ -69,10 +68,10 @@ update message model =
         Cancel ->
             ( { model | selectedNote = Nothing }, Cmd.none )
 
-        DeleteNote myNote ->
+        DeleteNote id ->
             let
                 newList =
-                    List.removeAt myNote.noteId model.notes
+                    List.removeAt id model.notes
             in
             ( { model | notes = newList }, Cmd.none )
 
@@ -106,9 +105,6 @@ update message model =
 
         SelectNote myNote ->
             ( { model | selectedNote = Just myNote }, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
 
 
 
@@ -148,7 +144,7 @@ renderList model =
                         [ text l.content
                         ]
                     , button [ onClick (SelectNote l) ] [ text "Select" ]
-                    , button [ onClick (DeleteNote l) ] [ text "Delete" ]
+                    , button [ onClick (DeleteNote l.noteId) ] [ text "Delete" ]
                     ]
             )
         |> ol []

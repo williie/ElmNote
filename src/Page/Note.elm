@@ -74,7 +74,7 @@ update message model =
                 newList =
                     List.removeAt myNote.noteId model.notes
             in
-            ( { model | selectedNote = Just myNote, notes = newList }, Cmd.none )
+            ( { model | notes = newList }, Cmd.none )
 
         EditTitle text ->
             case model.selectedNote of
@@ -92,9 +92,6 @@ update message model =
                 Just myNote ->
                     ( { model | selectedNote = Just { myNote | content = text } }, Cmd.none )
 
-        NoOp ->
-            ( model, Cmd.none )
-
         SaveNote ->
             case model.selectedNote of
                 Nothing ->
@@ -109,6 +106,9 @@ update message model =
 
         SelectNote myNote ->
             ( { model | selectedNote = Just myNote }, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 
@@ -129,7 +129,6 @@ view model =
     div []
         [ button [ class "btn btn-primary", onClick AddNote ] [ text "Add new note" ]
         , div [] [ text "My Note App" ]
-        , div [ class "note-container" ] [ renderList model ]
         , div [ class "form-group" ] [ renderForm model ]
         ]
 
@@ -181,4 +180,5 @@ renderForm model =
                     []
                 , button [ onClick SaveNote ] [ text "Save Note" ]
                 , button [ onClick Cancel ] [ text "Cancel " ]
+                , renderList model
                 ]

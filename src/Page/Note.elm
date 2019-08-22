@@ -148,8 +148,7 @@ renderList model =
                     , div []
                         [ text l.content
                         ]
-                    , button [ onClick (SelectNote l) ] [ text "Select Note " ]
-                    , button [ onClick Cancel ] [ text "Cancel " ]
+                    , button [ onClick (SelectNote l) ] [ text "Select" ]
                     , button [ onClick (DeleteNote l) ] [ text "Delete" ]
                     ]
             )
@@ -158,20 +157,28 @@ renderList model =
 
 renderForm : Model -> Html Message
 renderForm model =
-    div []
-        [ label
-            []
-            [ text "Title " ]
-        , input
-            [ onInput (\x -> EditTitle x)
-            ]
-            []
-        , label
-            []
-            [ text " Content" ]
-        , input
-            [ onInput (\x -> EditContent x)
-            ]
-            []
-        , button [ onClick SaveNote ] [ text "Save Note" ]
-        ]
+    case model.selectedNote of
+        Nothing ->
+            renderList model
+
+        Just note ->
+            div []
+                [ label
+                    []
+                    [ text "Title " ]
+                , input
+                    [ value note.title
+                    , onInput (\x -> EditTitle x)
+                    ]
+                    []
+                , label
+                    []
+                    [ text " Content" ]
+                , input
+                    [ value note.content
+                    , onInput (\x -> EditContent x)
+                    ]
+                    []
+                , button [ onClick SaveNote ] [ text "Save Note" ]
+                , button [ onClick Cancel ] [ text "Cancel " ]
+                ]

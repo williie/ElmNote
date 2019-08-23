@@ -10,7 +10,8 @@ import List.Extra as List
 type alias Note =
     { title : String
     , content : String
-    , noteId : Int
+
+    -- , noteId : Int
     }
 
 
@@ -20,7 +21,7 @@ type alias Note =
 
 type alias Model =
     { notes : List Note
-    , selectedNote : Maybe Note
+    , selectedNote : Maybe ( Int, Note )
     }
 
 
@@ -45,10 +46,10 @@ type Message
     = AddNote
     | Cancel
     | DeleteNote Int
-    | EditTitle String
-    | EditContent String
-    | SaveNote
-    | SelectNote Note
+    | EditTitle String Int
+    | EditContent String Int
+    | SaveNote Int
+    | SelectNote Int Note
 
 
 
@@ -59,11 +60,7 @@ update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
         AddNote ->
-            let
-                newNoteId =
-                    List.length model.notes
-            in
-            ( { model | selectedNote = Nothing, notes = [ { title = "My Note " ++ String.fromInt newNoteId, content = "This is my new note", noteId = newNoteId } ] ++ model.notes }, Cmd.none )
+            ( { model | selectedNote = Nothing, notes = [ { title = "My Note ", content = "This is my new note" } ] ++ model.notes }, Cmd.none )
 
         Cancel ->
             ( { model | selectedNote = Nothing }, Cmd.none )
@@ -75,36 +72,48 @@ update message model =
             in
             ( { model | notes = newList }, Cmd.none )
 
-        EditTitle text ->
+        EditTitle text id ->
             case model.selectedNote of
                 Nothing ->
                     ( model, Cmd.none )
 
-                Just myNote ->
-                    ( { model | selectedNote = Just { myNote | title = text } }, Cmd.none )
+                Just ( index, myNote ) ->
+                    if index == id then
+                        ( { model | selectedNote = Just ( index, { myNote | title = text } ) }, Cmd.none )
 
-        EditContent text ->
+                    else
+                        ( model, Cmd.none )
+
+        EditContent text id ->
             case model.selectedNote of
                 Nothing ->
                     ( model, Cmd.none )
 
-                Just myNote ->
-                    ( { model | selectedNote = Just { myNote | content = text } }, Cmd.none )
+                Just ( index, myNote ) ->
+                    if index == id then
+                        ( { model | selectedNote = Just ( index, { myNote | content = text } ) }, Cmd.none )
 
-        SaveNote ->
+                    else
+                        ( model, Cmd.none )
+
+        SaveNote id ->
             case model.selectedNote of
                 Nothing ->
                     ( model, Cmd.none )
 
-                Just myNote ->
-                    let
-                        newList =
-                            List.setAt myNote.noteId myNote model.notes
-                    in
-                    ( { model | selectedNote = Just myNote, notes = newList }, Cmd.none )
+                Just ( index, myNote ) ->
+                    if id == index then
+                        let
+                            newList =
+                                List.setAt index myNote model.notes
+                        in
+                        ( { model | selectedNote = Just ( index, myNote ), notes = newList }, Cmd.none )
 
-        SelectNote myNote ->
-            ( { model | selectedNote = Just myNote }, Cmd.none )
+                    else
+                        ( model, Cmd.none )
+
+        SelectNote id myNote ->
+            ( { model | selectedNote = Just ( id, myNote ) }, Cmd.none )
 
 
 
@@ -132,19 +141,19 @@ view model =
 renderList : Model -> Html Message
 renderList model =
     model.notes
-        |> List.map
-            (\l ->
+        |> List.indexedMap
+            (\index myNote ->
                 div []
                     [ li
                         []
                         [ text "#Title: "
-                        , text l.title
+                        , text myNote.title
                         ]
                     , div []
-                        [ text l.content
+                        [ text myNote.content
                         ]
-                    , button [ onClick (SelectNote l) ] [ text "Select" ]
-                    , button [ onClick (DeleteNote l.noteId) ] [ text "Delete" ]
+                    , button [ onClick (SelectNote index myNote) ] [ text "Select" ]
+                    , button [ onClick (DeleteNote index) ] [ text "Delete" ]
                     ]
             )
         |> ol []
@@ -156,25 +165,25 @@ renderForm model =
         Nothing ->
             renderList model
 
-        Just note ->
+        Just ( index, myNote ) ->
             div []
                 [ label
                     []
                     [ text "Title " ]
                 , input
-                    [ value note.title
-                    , onInput (\x -> EditTitle x)
+                    [ value myNote.title
+                    , onInput (\x -> EditTitle x index)
                     ]
                     []
                 , label
                     []
                     [ text " Content" ]
                 , input
-                    [ value note.content
-                    , onInput (\x -> EditContent x)
+                    [ value myNote.content
+                    , onInput (\x -> EditContent x index)
                     ]
                     []
-                , button [ onClick SaveNote ] [ text "Save Note" ]
+                , button [ onClick (SaveNote index) ] [ text "Save Note" ]
                 , button [ onClick Cancel ] [ text "Cancel " ]
                 , renderList model
                 ]

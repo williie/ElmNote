@@ -1,17 +1,17 @@
 module Page.Note exposing (Message, Model, init, subscriptions, update, view)
 
-import Css exposing (..)
-import Html exposing (Html, button, div, input, label, li, ol, text)
-import Html.Attributes exposing (class, value)
-import Html.Events as A exposing (onClick, onInput)
+--import Html.Attributes exposing (class, value)
+
+import Css exposing (Style, backgroundColor, borderRadius, center, fontSize, hex, left, padding, px, right, textAlign)
+import Html.Styled exposing (Html, button, div, img, input, label, li, ol, text)
+import Html.Styled.Attributes exposing (css, src, value)
+import Html.Styled.Events as A exposing (onClick, onInput)
 import List.Extra as List
 
 
 type alias Note =
     { title : String
     , content : String
-
-    -- , noteId : Int
     }
 
 
@@ -132,9 +132,9 @@ subscriptions model =
 view : Model -> Html Message
 view model =
     div []
-        [ button [ class "btn btn-primary", onClick AddNote ] [ text "Add new note" ]
-        , div [] [ text "My Note App" ]
-        , div [ class "form-group" ] [ renderForm model ]
+        [ div [ css [ fontSize (px 40), textAlign center ] ] [ text "Dashboard" ]
+        , button [ css [ backgroundColor (hex "#ccccff"), padding (px 15), borderRadius (px 20) ], onClick AddNote ] [ text "Add Note" ]
+        , div [] [ renderForm model ]
         ]
 
 
@@ -143,17 +143,17 @@ renderList model =
     model.notes
         |> List.indexedMap
             (\index myNote ->
-                div []
+                div [ css [ textAlign center ] ]
                     [ li
-                        []
+                        [ css [ fontSize (px 20) ] ]
                         [ text "#Title: "
                         , text myNote.title
                         ]
-                    , div []
+                    , div [ css [ fontSize (px 20) ] ]
                         [ text myNote.content
                         ]
-                    , button [ onClick (SelectNote index myNote) ] [ text "Select" ]
-                    , button [ onClick (DeleteNote index) ] [ text "Delete" ]
+                    , button [ css [ padding (px 10), borderRadius (px 20), backgroundColor (hex "#ccccff") ], onClick (SelectNote index myNote) ] [ text "Select" ]
+                    , button [ css [ padding (px 10), borderRadius (px 20), backgroundColor (hex "#ff3300") ], onClick (DeleteNote index) ] [ text "Delete" ]
                     ]
             )
         |> ol []
@@ -166,24 +166,24 @@ renderForm model =
             renderList model
 
         Just ( index, myNote ) ->
-            div []
+            div [ css [ textAlign center ] ]
                 [ label
-                    []
-                    [ text "Title " ]
+                    [ css [ padding (px 10), fontSize (px 20) ] ]
+                    [ text "Title: " ]
                 , input
                     [ value myNote.title
                     , onInput (\x -> EditTitle x index)
                     ]
                     []
                 , label
-                    []
-                    [ text " Content" ]
+                    [ css [ padding (px 10), fontSize (px 20) ] ]
+                    [ text " Content:" ]
                 , input
                     [ value myNote.content
                     , onInput (\x -> EditContent x index)
                     ]
                     []
-                , button [ onClick (SaveNote index) ] [ text "Save Note" ]
-                , button [ onClick Cancel ] [ text "Cancel " ]
+                , button [ css [ padding (px 10), borderRadius (px 20), backgroundColor (hex "#ccccff") ], onClick (SaveNote index) ] [ text "Save Note" ]
+                , button [ css [ padding (px 10), borderRadius (px 20), backgroundColor (hex "#ff3300") ], onClick Cancel ] [ text "Cancel " ]
                 , renderList model
                 ]

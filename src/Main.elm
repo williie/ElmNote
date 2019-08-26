@@ -4,7 +4,7 @@ module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Html exposing (Html, map)
+import Html.Styled as Html exposing (Html, map)
 import Page.Note
 import Route
 import Url
@@ -21,7 +21,7 @@ main =
         , view =
             \model ->
                 { title = "Dashboard"
-                , body = [ view model ]
+                , body = [ view model |> Html.toUnstyled ]
                 }
         , update = update
         , subscriptions = subscriptions
